@@ -130,6 +130,15 @@ getwd()
 setwd("C:\\Users\\Peterovic\\Downloads\\Dizertacka\\Rcourse\\")
 
 ozone <- read.csv("Ozone.csv", header=TRUE, sep=";") # read data
+
+# O3 - Daily maximum one-hour-average ozone reading
+# wind - Wind speed in LA airport
+# humidity - Humidity at LA
+# temp - Temperature 
+# dpg - Pressure gradient (mm Hg)
+# vis - Visibility (miles) measured at LA
+# doy - Day of Year
+
 # explore your data
 str(ozone)
 summary(ozone)
@@ -145,14 +154,19 @@ pairs(ozone, panel = panel.smooth)
 pairs(ozone, panel = panel.smooth, pch=21, bg="blue", cex=0.8, lwd=2)
 
 # Regression analysis #
+# y = Beta_0 + Beta_1*x_1 + Beta_2*x_2 + ...
 linear.model <- lm(O3~., data=ozone)
+
 attributes(linear.model)
+linear.model$terms
 summary(linear.model)
 plot(linear.model)
 
+# nonlinear dependence #
 lin.mod_2 <- lm(O3 ~ poly(wind, 2) + humidity + poly(temp, 2) + dpg + poly(doy, 2) + poly(vis,2), data=ozone)
 summary(lin.mod_2)
 
+# wind only linear, dpg -> poly #
 lin.mod_3 <- lm(O3 ~ wind + humidity + poly(temp, 2) + poly(dpg, 2) + poly(doy, 2) + poly(vis,2), data=ozone)
 summary(lin.mod_3)
 
@@ -163,6 +177,32 @@ library(MASS) # read library (package)
 rlin.mod_1 <- rlm(O3 ~ wind + humidity + poly(temp, 2) + poly(dpg, 2) + poly(doy, 2) + poly(vis,2), data=ozone)
 summary(rlin.mod_1)
 attributes(rlin.mod_1)
-rlin.mod_1$residuals
+rlin.mod_1$fitted.values
 
+# GRAPHICS - Creating Graphs #
+
+plot(ozone$temp, ozone$O3) # boring
+
+plot(ozone$temp, ozone$O3, xlab = "Temperature", ylab = "Ozone", main = "Regression analysis") # Labels
+
+plot(ozone$temp, ozone$O3, pch = 21, bg = "dodgerblue2", col = "darkorange", cex = 1.5,
+     xlab = "Temperature", ylab = "Ozone", main = "Regression analysis")
+
+lm_o3_temp <- lm(O3 ~ temp, data= ozone)
+abline(lm_o3_temp, lwd = 2, col = "firebrick2")
+
+lm_o3_temp2 <- lm(O3 ~ poly(temp, 2), data = ozone)
+points(ozone$temp, as.vector(lm_o3_temp2$fitted.values), pch = 23, bg = "springgreen3")
+
+# Plot legend of model without border
+lm_o3_temp2$coefficients
+
+legend("topleft", legend = c(paste("Model"),
+                             paste("y =", round(lm_o3_temp2$coefficients[1], digits=3), " + ",
+                             round(lm_o3_temp2$coefficients[2], digits=3), "x + ",
+                             round(lm_o3_temp2$coefficients[3], digits=3), "x^2")),
+                             bty = "n", text.font = 7)
+
+paste("Hello World!")
+round(2.23232323, digits = 3)
 
