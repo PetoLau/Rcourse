@@ -1,6 +1,6 @@
 ######## R COURSE #########
 
-# INTRO TO SYNTAX #
+## INTRO TO SYNTAX ##
 
 x <- c(1, 4, 101, 6)
 x
@@ -72,7 +72,7 @@ ch <- c("Rko", 5, 7)
 mode(ch)
 mode(x)
 
-# Matrices
+# Matrices #
 
 matrix(1:4)
 matrix(1:4, nrow=2)
@@ -274,5 +274,81 @@ plot(stl.dekom)
 stl.arima.f <- forecast(stl.dekom, h = 96, method = "arima")
 mape(test, stl.arima.f$mean)
 lines(stl.arima.f$mean, lwd = 2, col = "green")
+###################################################################################################################
 
+## Cluster analysis ##
+rm(list=ls()) # remove all variables from memory
+gc()
 
+#install.packages("mclust")
+
+# read two libraries
+library(cluster)
+library(mclust)
+
+# read data to clustering, info: http://archive.ics.uci.edu/ml/datasets/Wine
+data_w <- read.table("wine.data", sep=",")
+
+str(data_w)
+summary(data_w)
+head(data_w)
+tail(data_w)
+dim(data_w)
+
+# first feature is real classification to 3 clusters
+Wine <- data_w[,-1]
+Real_class <- data_w[,1]
+
+pairs(Wine, pch = 21, bg = Real_class) # not very meaningfull and effective
+# way out of this problem is principal component analysis (PCA), technique of dimensionality reduction
+
+pca_w <- prcomp(Wine, center = TRUE, scale. = TRUE)
+attributes(pca_w)
+plot(pca_w$x[,1:2], pch = 21, bg = Real_class, cex = 1.5, main = "Wine dataset")
+
+# K-means
+km_w <- kmeans(Wine, 3)
+attributes(km_w)
+km_w$cluster # classification to clusters
+# plot results
+layout(matrix(1:2, nrow=1, byrow=TRUE))
+plot(pca_w$x[,1:2], pch = 21, bg = Real_class, cex = 1.5, main = "Wine dataset - real class.")
+plot(pca_w$x[,1:2], pch = 21, bg = km_w$cluster, cex = 1.5, main = "Wine dataset - K-means")
+
+# Model-based clustering
+mbc_w <- Mclust(Wine, 3, modelNames = "EEE")
+attributes(mbc_w)
+mbc_w$classification
+# plot results
+layout(matrix(1:2, nrow=1, byrow=TRUE))
+plot(pca_w$x[,1:2], pch = 21, bg = Real_class, cex = 1.5, main = "Wine dataset - real class.")
+plot(pca_w$x[,1:2], pch = 21, bg = mbc_w$classification, cex = 1.5, main = "Wine dataset - MBC")
+
+dev.off() # disable plot configuration - layout()
+###############################################################################################################
+
+## BONUS - data stream clustering ##
+
+rm(list=ls())
+gc()
+
+library(stream)
+
+stream <- DSD_Gaussians(k = 3, d = 2, noise = 0.05)
+dbstream <- DSC_DBSTREAM(r = .05)
+km <- DSC_Kmeans(k = 3, weighted = TRUE)
+
+update(dbstream, stream, n = 1000)
+dbstream
+plot(dbstream, stream, type="both", main="DBStream")
+recluster(km, dbstream)
+km
+plot(km, stream, type="both")
+
+for(i in 1:5){
+  update(dbstream, stream, n = 1000)
+  print(dbstream)
+  recluster(km, dbstream)
+  print(km)
+  plot(km, stream, type="both")
+}
