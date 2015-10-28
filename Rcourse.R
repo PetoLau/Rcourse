@@ -186,8 +186,9 @@ plot(ozone$temp, ozone$O3) # boring
 plot(ozone$temp, ozone$O3, xlab = "Temperature", ylab = "Ozone", main = "Regression analysis") # Labels
 
 plot(ozone$temp, ozone$O3, pch = 21, bg = "dodgerblue2", col = "darkorange", cex = 1.5,
-     xlab = "Temperature", ylab = "Ozone", main = "Regression analysis")
+     xlab = "Temperature", ylab = "Ozone", main = "Regression analysis") # nice
 
+# Regression lines
 lm_o3_temp <- lm(O3 ~ temp, data= ozone)
 abline(lm_o3_temp, lwd = 2, col = "firebrick2")
 
@@ -203,6 +204,75 @@ legend("topleft", legend = c(paste("Model"),
                              round(lm_o3_temp2$coefficients[3], digits=3), "x^2")),
                              bty = "n", text.font = 7)
 
-paste("Hello World!")
+ch <- "Hello!"
+paste("Hello World!", ch)
 round(2.23232323, digits = 3)
+###################################################################################################
+
+## TIME SERIES ##
+
+Load <- read.csv("Load.csv", sep=";", header = TRUE)
+
+str(Load)
+summary(Load)
+head(Load)
+tail(Load)
+dim(Load)
+
+# set date format
+Load[,5] <- as.Date(Load[,5]) #, "%d.%m.%Y %H:%M:%S"
+str(Load)
+
+## Find out number of OOM and range of days
+ooms <- as.factor(Load[,4]) # something like character
+levels(ooms)
+datum <- as.factor(Load[,5])
+levels(datum)
+
+# install package 'forecast'
+install.packages("forecast")
+library(forecast)
+
+# subset 1 OOM
+ts_oom1 <- ts(Load[Load[,"oom_id"] %in% as.integer(levels(ooms)[2]) , "MNOZSTVO"], freq=96, start=0)
+plot(ts_oom1)
+
+# subset 8 days in dataset
+length(levels(datum))
+
+ts_oom1_week <- ts(ts_oom1[((79*96)+1):(87*96)], freq=96, start=79)
+plot(ts_oom1_week)
+
+# create train (7 days) and test (1 day) set
+train <- ts(ts_oom1_week[1:(7*96)], freq=96, start=79)
+test <- ts(ts_oom1_week[((7*96)+1):(8*96)], freq=96, start=86)
+
+# Train HW model
+HW <- HoltWinters(train, beta= FALSE)
+HW.f <- forecast(HW, 96) # predict next 96 (1 day) values
+attributes(HW.f)
+HW.f$mean # prediction
+
+# function to prediction error - MAPE - Mean Absolute Percentage Error
+mape <- function(actual, pred){
+  100*mean(abs((actual-pred)/actual))
+}
+
+mape(test, HW.f$mean)
+accuracy(HW.f$mean, test) # function in forecast package
+
+# Plot results
+plot(ts_oom1_week, type = "n",  xlab = "Time (days)", ylab = "Load (kWh)", main = "Real values vs. Prediction")
+lines(train)
+lines(test, lwd = 2, col = "blue")
+lines(HW.f$mean, lwd = 2, col = "red")
+
+# STL decomposition + ARIMA model
+stl.dekom <- stl(train, s.window="periodic", robust = TRUE)
+plot(stl.dekom)
+
+stl.arima.f <- forecast(stl.dekom, h = 96, method = "arima")
+mape(test, stl.arima.f$mean)
+lines(stl.arima.f$mean, lwd = 2, col = "green")
+
 
