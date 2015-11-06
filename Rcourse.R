@@ -92,7 +92,7 @@ rbind(20:25, m) # must be same length
 # apply function, no more loops in R
 
 fun_norm <- function(x){
-  return(x-mean(x)/sd(x)) 
+  return((x-mean(x))/sd(x)) 
 } # normalization of vector
 
 fun_norm(1:3)
@@ -107,7 +107,7 @@ arr[,,2]
 dim(arr)
 
 # Data.frame, list #
-m <- cbind(c("A", "B", "C"), m) # not good
+cbind(c("A", "B", "C"), m) # not good
 df <- data.frame(ch=c("A", "B", "C"), m)
 df[,1]
 df <- data.frame(ch=c("A", "B", "C"), m, stringsAsFactors = FALSE)
