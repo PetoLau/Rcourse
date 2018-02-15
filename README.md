@@ -13,6 +13,7 @@ Contents:
  - Regression analysis
  - Time series analysis
  - Cluster analysis
+ - BONUS - data stream clustering
 
 ## Rcourse_vol2
 
