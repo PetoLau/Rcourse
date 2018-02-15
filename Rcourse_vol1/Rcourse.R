@@ -120,16 +120,15 @@ l_person$Name
 l_person[[1]]
 l_person[["Name"]]
 
-## EXAMPLES ##
+## EXAMPLES ----
 rm(list=ls()) # remove all variables from memory
 gc()
 ?gc
 
 # get and set working directory
 getwd()
-setwd("C:\\Users\\Peterovic\\Downloads\\Dizertacka\\Rcourse\\")
 
-ozone <- read.csv("Ozone.csv", header=TRUE, sep=";") # read data
+ozone <- read.csv("Rcourse_vol1/Ozone.csv", header=TRUE, sep=";") # read data
 
 # O3 - Daily maximum one-hour-average ozone reading
 # wind - Wind speed in LA airport
@@ -207,11 +206,10 @@ legend("topleft", legend = c(paste("Model"),
 ch <- "Hello!"
 paste("Hello World!", ch)
 round(2.23232323, digits = 3)
-###################################################################################################
 
-## TIME SERIES ##
+## TIME SERIES ----
 
-Load <- read.csv("Load.csv", sep=";", header = TRUE)
+Load <- read.csv("Rcourse_vol1/Load.csv", sep=";", header = TRUE)
 
 str(Load)
 summary(Load)
@@ -274,9 +272,8 @@ plot(stl.dekom)
 stl.arima.f <- forecast(stl.dekom, h = 96, method = "arima")
 mape(test, stl.arima.f$mean)
 lines(stl.arima.f$mean, lwd = 2, col = "green")
-###################################################################################################################
 
-## Cluster analysis ##
+## Cluster analysis ----
 rm(list=ls()) # remove all variables from memory
 gc()
 
@@ -287,7 +284,7 @@ library(cluster)
 library(mclust)
 
 # read data to clustering, info: http://archive.ics.uci.edu/ml/datasets/Wine
-data_w <- read.table("wine.data", sep=",")
+data_w <- read.table("Rcourse_vol1/wine.data", sep=",")
 
 str(data_w)
 summary(data_w)
@@ -325,9 +322,8 @@ plot(pca_w$x[,1:2], pch = 21, bg = Real_class, cex = 1.5, main = "Wine dataset -
 plot(pca_w$x[,1:2], pch = 21, bg = mbc_w$classification, cex = 1.5, main = "Wine dataset - MBC")
 
 dev.off() # disable plot configuration - layout()
-###############################################################################################################
 
-## BONUS - data stream clustering ##
+## BONUS - data stream clustering ----
 
 rm(list=ls())
 gc()
