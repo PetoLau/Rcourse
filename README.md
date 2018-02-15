@@ -25,3 +25,7 @@ Contents:
  - Introduction to syntax
  - Visualisations (basic, ggplot2, plotly, dygraph, animations)
  - Time series classification and cluster analysis
+
+## More info
+
+For more informations and tutorials please visit my website [petolau.github.io](https://petolau.github.io/).
