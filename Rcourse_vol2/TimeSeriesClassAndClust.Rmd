@@ -1,0 +1,277 @@
+---
+title: "Time series classification and clustering in R"
+author: "Peter Laurinec"
+date: "October 23, 2017"
+output:
+  html_document: default
+---
+
+Load all needed packages.
+```{r, warning=F, message=FALSE}
+library(data.table) # data handling
+library(ggplot2) # visualizations
+library(randomForest) # for classification
+library(cluster) # for clustering
+library(clv) # cluster validation
+```
+
+```{r, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+library(knitr)
+```
+
+Read the time series data. Train and Test part.
+```{r}
+ts_data_train <- fread("ItalyPowerDemand\\ItalyPowerDemand_TRAIN")
+ts_data_test <- fread("ItalyPowerDemand\\ItalyPowerDemand_Test")
+```
+
+Chceck structure of our data.
+```{r}
+str(ts_data_train)
+str(ts_data_test)
+```
+
+Check classes:
+```{r}
+table(ts_data_train$V1)
+table(ts_data_test$V1)
+```
+
+Create data object.
+```{r}
+class_train <- unlist(ts_data_train[, 1, with = F])
+data_train <- ts_data_train[, -1, with = F]
+class_test <- unlist(ts_data_test[, 1, with = F])
+data_test <- ts_data_test[, -1, with = F]
+```
+
+Visualize the train data.
+```{r, warning=F}
+datas <- data.table(melt(data_train))
+datas[, time := rep(1:ncol(data_train), each = nrow(data_train))]
+datas[, class := as.factor(rep(class_train, ncol(data_train)))]
+datas[, id := rep(1:nrow(data_train), ncol(data_train))]
+
+ggplot(datas, aes(time, value, group = id, color = class)) +
+  geom_line(alpha = 0.75) +
+  labs(title = paste("ItalyPowerDemand", "_TRAIN", " - classes: ", length(unique(class_train)), sep = "")) +
+  theme_bw()
+```
+
+Visualize the test data.
+```{r, warning=F}
+datas <- data.table(melt(data_test))
+datas[, time := rep(1:ncol(data_test), each = nrow(data_test))]
+datas[, class := as.factor(rep(class_test, ncol(data_test)))]
+datas[, id := rep(1:nrow(data_test), ncol(data_test))]
+
+ggplot(datas, aes(time, value, group = id, color = class)) +
+  geom_line(alpha = 0.75) +
+  labs(title = paste("ItalyPowerDemand", "_test", " - classes: ", length(unique(class_test)), sep = "")) +
+  theme_bw()
+```
+
+## Classification of time series with Random Forest
+
+Let's try to train classification model. We will use all the data as it is to training.
+```{r, fig.height=6}
+ts_data_train[, V1 := as.factor(V1)] # change V1 to character or factor to do classification
+
+rf_model <- randomForest(V1 ~ ., data = data.frame(ts_data_train),
+                         ntree = 1000, mtry = 12, nodesize = 5, importance = TRUE)
+
+varImpPlot(rf_model)
+```
+
+Accuracy on training data.
+```{r}
+pred_train <- predict(rf_model, data.frame(data_train))
+
+# Confusion matrix:
+table(class_train, pred_train)
+```
+
+Just one misclassification on training data.
+
+Now make predictions on testing data.
+```{r}
+pred_test <- predict(rf_model, data.frame(data_test))
+
+# Confusion matrix:
+table(class_test, pred_test)
+```
+
+Pretty accurate.
+
+Let's visualaze the results:
+```{r}
+datas <- data.table(melt(data_test))
+datas[, time := rep(1:ncol(data_test), each = nrow(data_test))]
+datas[, class := as.factor(rep(pred_test, ncol(data_test)))]
+datas[, id := rep(1:nrow(data_test), ncol(data_test))]
+
+ggplot(datas, aes(time, value, group = id, color = class)) +
+  geom_line(alpha = 0.75) +
+  labs(title = paste("ItalyPowerDemand", "_test; Predictions;", " - classes: ", length(unique(pred_test)), sep = "")) +
+  theme_bw()
+```
+
+Not many visible differences compared to the TEST set.
+
+Evaluation of results (accuracy):
+```{r}
+cm <- as.matrix(table(class_test, pred_test))
+
+c(Accuracy = sum(diag(cm)) / sum(cm))
+```
+
+## Clustering of time series with K-medoids (PAM)
+
+Let's cluster it:
+```{r}
+res_pam <- pam(data_train, 2)
+```
+
+We can check the results.
+```{r}
+table(res_pam$clustering)
+```
+
+Fuuu. Very bad :))
+
+Visualize the results.
+```{r, warning=F}
+datas <- data.table(melt(data_train))
+datas[, time := rep(1:ncol(data_train), each = nrow(data_train))]
+datas[, class := as.factor(rep(res_pam$clustering, ncol(data_train)))]
+datas[, id := rep(1:nrow(data_train), ncol(data_train))]
+
+ggplot(datas, aes(time, value, group = id, color = class)) +
+  geom_line(alpha = 0.75) +
+  labs(title = paste("ItalyPowerDemand", "_TRAIN", " - classes: ", length(unique(res_pam$clustering)), sep = "")) +
+  theme_bw()
+```
+
+There is some good signigs, but...
+
+How to classify TEST data to nearest clusters? We will use Euclidean distance and stored medoids (in `res_pam`) to classify time series to nearest medoids.
+```{r}
+my_knn <- function(data, query) {
+  as.integer(which.min(as.matrix(dist(rbind(data, query)))[nrow(data)+1,-(nrow(data)+1)]))
+}
+
+pred_test_pam <- sapply(seq_along(class_test),
+                    function(z) my_knn(res_pam$medoids, as.numeric(data_test[z,])))
+```
+
+Check the results:
+```{r}
+table(pred_test_pam)
+```
+
+Evaluate the results with external validation indexes.
+```{r}
+c(RandIndex = clv.Rand(std.ext(class_test, as.integer(pred_test_pam))))
+
+c(Folkes.Mallows = clv.Folkes.Mallows(std.ext(class_test, as.integer(pred_test_pam))))
+```
+
+Almost like a random guess.
+
+And finally let's visualaze the results:
+```{r, warning=F}
+datas <- data.table(melt(data_test))
+datas[, time := rep(1:ncol(data_test), each = nrow(data_test))]
+datas[, class := as.factor(rep(pred_test_pam, ncol(data_test)))]
+datas[, id := rep(1:nrow(data_test), ncol(data_test))]
+
+ggplot(datas, aes(time, value, group = id, color = class)) +
+  geom_line(alpha = 0.75) +
+  labs(title = paste("ItalyPowerDemand", "_test; Predictions;", " - classes: ", length(unique(pred_test_pam)), sep = "")) +
+  theme_bw()
+```
+
+Possible solution is to try transform the data. Let's try PCA.
+
+```{r}
+pca_train <- prcomp(data_train, center = T, scale. = T)
+```
+
+```{r}
+pca_test <- predict(pca_train, data_test)[,1:3]
+pca_train <- pca_train$x[,1:3]
+```
+
+Visualize what I did.
+```{r, warning=F}
+datas <- data.table(melt(pca_train))
+datas[, time := rep(1:ncol(pca_train), each = nrow(pca_train))]
+datas[, class := as.factor(rep(class_train, ncol(pca_train)))]
+datas[, id := rep(1:nrow(pca_train), ncol(pca_train))]
+
+ggplot(datas, aes(time, value, group = id, color = class)) +
+  geom_line(alpha = 0.75) +
+  labs(title = paste("ItalyPowerDemand", "_TRAIN", " - classes: ", length(unique(class_train)), sep = "")) +
+  theme_bw()
+```
+
+```{r}
+res_pam_pca <- pam(pca_train[,2], 2)
+```
+
+We can check the results.
+```{r}
+table(res_pam_pca$clustering)
+```
+
+```{r, warning=F}
+datas <- data.table(value = pca_train[,2])
+datas[, time := 2]
+datas[, class := as.factor(res_pam_pca$clustering)]
+
+ggplot(datas, aes(time, value, color = class)) +
+  geom_point(alpha = 0.75) +
+  labs(title = paste("ItalyPowerDemand", "_TRAIN", " - classes: ", length(unique(class_train)), sep = "")) +
+  theme_bw()
+```
+
+```{r, warning=F}
+datas <- data.table(value = pca_test[,2])
+datas[, time := 2]
+datas[, class := as.factor(class_test)]
+
+ggplot(datas, aes(time, value, color = class)) +
+  geom_point(alpha = 0.75) +
+  labs(title = paste("ItalyPowerDemand", "_TRAIN", " - classes: ", length(unique(class_train)), sep = "")) +
+  theme_bw()
+```
+
+```{r}
+pred_test_pam_pca <- sapply(seq_along(class_test),
+                    function(z) my_knn(res_pam_pca$medoids, as.numeric(pca_test[z,2])))
+```
+
+Check the results:
+```{r}
+table(pred_test_pam_pca)
+```
+
+Evaluate the results with external validation indexes.
+```{r}
+c(RandIndex = clv.Rand(std.ext(class_test, as.integer(pred_test_pam_pca))))
+
+c(Folkes.Mallows = clv.Folkes.Mallows(std.ext(class_test, as.integer(pred_test_pam_pca))))
+```
+
+And finally let's visualaze the results:
+```{r, warning=F}
+datas <- data.table(melt(data_test))
+datas[, time := rep(1:ncol(data_test), each = nrow(data_test))]
+datas[, class := as.factor(rep(pred_test_pam_pca, ncol(data_test)))]
+datas[, id := rep(1:nrow(data_test), ncol(data_test))]
+
+ggplot(datas, aes(time, value, group = id, color = class)) +
+  geom_line(alpha = 0.75) +
+  labs(title = paste("ItalyPowerDemand", "_test; Predictions;", " - classes: ", length(unique(pred_test_pam_pca)), sep = "")) +
+  theme_bw()
+```
