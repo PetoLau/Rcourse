@@ -28,4 +28,4 @@ Contents:
 
 ## More info
 
-For more informations and tutorials please visit my website [petolau.github.io](https://petolau.github.io/).
+For more information and tutorials please visit my website [petolau.github.io](https://petolau.github.io/).
