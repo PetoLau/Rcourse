@@ -26,7 +26,7 @@ Contents:
  - Visualisations (basic, ggplot2, plotly, dygraph, animations)
  - Time series classification and cluster analysis
 
-## KKD excercises
+## KDD excercises
 
 Exercises for KDD course.
 
