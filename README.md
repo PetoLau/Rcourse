@@ -26,6 +26,13 @@ Contents:
  - Visualisations (basic, ggplot2, plotly, dygraph, animations)
  - Time series classification and cluster analysis
 
+## KKD excercises
+
+Exercises for KDD course.
+
+Contents:
+ - Classification of Iris dataset with Naive Bayes method.
+
 ## More info
 
 For more information and tutorials please visit my website [petolau.github.io](https://petolau.github.io/).
