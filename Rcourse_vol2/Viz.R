@@ -1,6 +1,6 @@
 # remove all variables from memory and garbage collection
-# rm(list=ls())
-# gc()
+rm(list=ls())
+gc()
 
 # load visualization libraries
 library(ggplot2)
