@@ -10,15 +10,16 @@ train <- iris[id,]
 test <- iris[-id,]
 
 # write datasets to files (optional)
-write.table(train, "train.csv", row.names = F, col.names = T)
-write.table(test, "test.csv", row.names = F, col.names = T)
+# write.table(train, "train.csv", row.names = F, col.names = T)
+# write.table(test, "test.csv", row.names = F, col.names = T)
 
 # install/load package for NB
 # install.packages("naivebayes")
 library(naivebayes)
 
 # Train model
-nb_m <- naive_bayes(train[,1:4], train[,5])
+# nb_m <- naive_bayes(train[,1:4], train[,5])
+nb_m <- naive_bayes(Species ~ ., data = train)
 nb_m
 
 # Prediction on test set

@@ -32,6 +32,7 @@ Exercises for KDD course.
 
 Contents:
  - Classification of Iris dataset with Naive Bayes method.
+ - Feature engineering and exploratory analysis with ozone and genes leukemia datasets
 
 ## More info
 
