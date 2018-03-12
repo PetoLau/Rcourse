@@ -3,9 +3,11 @@ title: "Cluster Analysis"
 author: "Peter Laurinec"
 date: "March 12, 2018"
 output:
-  html_document: 
+  html_document:
     highlight: pygments
     theme: readable
+    toc: yes
+  pdf_document:
     toc: yes
 ---
 
@@ -210,7 +212,7 @@ ggplot(data.table(K = 2:6, Dav_Boul = unlist(db_km)), aes(K, Dav_Boul)) +
 ```
 
 ```{r, fig.width=6.5, fig.height=4.5}
-datas[, class := as.factor(km_res_k[[which.max(unlist(db_km))+1]])]
+datas[, class := as.factor(km_res_k[[which.min(diff(unlist(db_km)))+1]])]
 
 ggplot(datas, aes(x, y, color = class, shape = class)) +
   geom_point(alpha = 0.75, size = 8) +
@@ -231,7 +233,7 @@ ggplot(data.table(K = 2:6, Dav_Boul = unlist(db_kmed)), aes(K, Dav_Boul)) +
 ```
 
 ```{r, fig.width=6.5, fig.height=4.5}
-datas[, class := as.factor(kmed_res_k[[3]])]
+datas[, class := as.factor(kmed_res_k[[which.min(diff(unlist(db_km)))+1]])]
 
 ggplot(datas, aes(x, y, color = class, shape = class)) +
   geom_point(alpha = 0.75, size = 8) +
