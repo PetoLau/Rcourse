@@ -46,6 +46,7 @@ Contents:
 Contents:
  - Classification of Iris dataset with Naive Bayes method.
  - Feature engineering and exploratory analysis with ozone and genes leukemia datasets
+ - Typical workflow for linear regression task with ozone dataset
 
 ## More info
 
