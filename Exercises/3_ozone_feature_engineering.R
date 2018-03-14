@@ -1,8 +1,7 @@
 # Ozone - basic feature engineering ----
 library(ggplot2)
 library(GGally)
-library(mgcv)
-library(visreg)
+library(forecast)
 
 ozone <- read.csv("Exercises/ozone.csv", sep = " ")
 
@@ -20,21 +19,23 @@ ggplot(ozone, aes(doy, O3)) +
   theme_bw()
 
 # Correlation matrix
-cor(ozone) # Pearson
-cor(ozone, method = "spearman")
+cor(ozone) # Pearson measures only linear dependency in variables
+cor(ozone, method = "spearman") #Spearman is non-parametric version of Pearson cor. coef.
 
 # pairs - scatter plots
 ggpairs(ozone[, -7], lower = list(continuous = wrap("smooth", method = "loess", color = "dodgerblue2")))
 
 # Transformations of data
 # normal?
-qqnorm(ozone$O3)
-qqline(ozone$O3, col = "red")
+qqnorm(ozone$O3) # Q-Q plot
+qqline(ozone$O3, col = "red") # points should lie on the red line to be normal
 
-library(forecast)
-power_lambda <- BoxCox.lambda(ozone$O3)
+# Box-Cox transformation - tries to transform data (vector) to more normal (Gaussian) form
+# https://en.wikipedia.org/wiki/Power_transform#Box%E2%80%93Cox_transformation
+power_lambda <- BoxCox.lambda(ozone$O3) # find optimal lamda
 O3_boxcox <- BoxCox(ozone$O3, power_lambda)
 
+# again check Q-Q plot for "normality" improvement
 qqnorm(O3_boxcox)
 qqline(O3_boxcox, col = "red")
 
@@ -64,4 +65,5 @@ ggplot(data.frame(O3 = O3_boxcox, dpg_vis = ozone$dpg*ozone$vis), aes(dpg_vis, O
   theme_bw()
 
 # non-linear trans. of independent var.
-head(poly(ozone$temp, 2))
+# polynomials
+head(poly(ozone$temp, 4))
