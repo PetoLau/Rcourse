@@ -1,6 +1,7 @@
 # Basic linear regression workflow ----
 library(mgcv)
 library(visreg)
+library(ggplot2)
 
 ozone <- read.csv("Exercises/ozone.csv", sep = " ")
 
@@ -13,7 +14,8 @@ ozone <- read.csv("Exercises/ozone.csv", sep = " ")
 # doy Day of Year
 
 # GAM
-gam_oz <- gam(O3 ~ s(wind) + s(humidity) + s(temp) + s(dpg) + s(vis) + s(doy), data = ozone)
+gam_oz <- gam(O3 ~ s(wind) + s(humidity) + s(temp) + s(dpg) + s(vis) + s(doy),
+              data = ozone)
 summary(gam_oz)
 
 visreg(gam_oz, "wind", gg=TRUE) + theme_bw()
@@ -72,6 +74,7 @@ summary(lm_3) # little improvement
 plot(lm_3)
 
 library(car)
+
 slp(lm_3)
 ncvTest(lm_3)
 
@@ -112,21 +115,21 @@ ggplot(data = data.frame(Fitted_values = lm_5$fit,
 qqnorm(lm_5$res) # almost gaussian
 qqline(as.vector(lm_5$res), col = "red")
 
-# rt_2 <- rpart(I(O3^(1/2)) ~ ., data = ozone, cp = 0.001)
-# plotcp(rt_2) # cp ~ 0.015
-# tr2 <- prune(rt_2, cp = 0.018)
-# 
-# rpart.plot(tr2, digits = 2, 
-#            box.palette = viridis::viridis(10, option = "D", begin = 0.85, end = 0), 
-#            shadow.col = "grey65", col = "grey99")
-# # temp and doy and temp and vis
-# 
-# lm_6 <- lm(I(O3^(1/2)) ~ temp:humidity + temp:doy + temp:vis + I(temp^2):I(humidity^2) + humidity +
-#              poly(dpg,2) + poly(doy, 2) + poly(vis,2),
-#            data = ozone,
-#            subset = c(-21, -53, -258))
-# 
-# summary(lm_6) # not really better
+rt_2 <- rpart(I(O3^(1/2)) ~ ., data = ozone, cp = 0.001)
+plotcp(rt_2) # cp ~ 0.015
+tr2 <- prune(rt_2, cp = 0.018)
+
+rpart.plot(tr2, digits = 2,
+           box.palette = viridis::viridis(10, option = "D", begin = 0.85, end = 0),
+           shadow.col = "grey65", col = "grey99")
+# temp and doy and temp and vis
+
+lm_6 <- lm(I(O3^(1/2)) ~ temp:humidity + temp:doy + temp:vis + I(temp^2):I(humidity^2) + humidity +
+             poly(dpg,2) + poly(doy, 2) + poly(vis,2),
+           data = ozone,
+           subset = c(-21, -53, -258))
+
+summary(lm_6) # not really better
 
 # try more advanced GAM
 gam_oz_2 <- gam(I(O3^(1/2)) ~ s(wind) + t2(humidity, temp, full = TRUE) + s(humidity) + s(temp) + s(dpg) + s(vis) + s(doy), data = ozone)
