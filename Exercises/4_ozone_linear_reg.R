@@ -1,7 +1,7 @@
 # Basic linear regression workflow ----
 library(mgcv)
-library(visreg)
 library(ggplot2)
+library(visreg)
 
 ozone <- read.csv("Exercises/ozone.csv", sep = " ")
 
@@ -36,7 +36,8 @@ stepAIC(lm_1)
 # wind is missing
 
 # based on GAM try polynomials
-lm_2 <- lm(O3 ~ poly(temp, 2) + poly(humidity, 2) + poly(dpg, 2) + poly(vis, 2) + poly(doy, 2), data = ozone)
+lm_2 <- lm(O3 ~ poly(temp, 2) + poly(humidity, 2) + 
+             poly(dpg, 2) + poly(vis, 2) + poly(doy, 2), data = ozone)
 summary(lm_2)
 plot(lm_2)
 
