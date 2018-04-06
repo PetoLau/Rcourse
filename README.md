@@ -22,9 +22,9 @@ Contents:
 Materials for Big Data seminar and KDD course.
 
 Contents:
- - Introduction to syntax
- - Visualisations (basic, ggplot2, plotly, dygraph, animations)
- - Time series classification and cluster analysis
+ - Introduction to syntax,
+ - Visualisations (basic, ggplot2, plotly, dygraph, animations),
+ - Time series classification and cluster analysis.
 
 ## Cluster Analysis
 
@@ -44,11 +44,11 @@ Contents:
 [Exercises for KDD course](https://github.com/PetoLau/Rcourse/tree/master/Exercises).
 
 Contents:
- - Classification of Iris dataset with Naive Bayes method.
- - Feature engineering and exploratory analysis with ozone and genes leukemia datasets
- - Typical workflow for linear regression task with ozone dataset
-    - Linear regression on Boston housing dataset
- - Typical workflow for logistic regression (classification task) with Titanic dataset
+ - Classification of Iris dataset with Naive Bayes method,
+ - Feature engineering and exploratory analysis with ozone and genes leukemia datasets ([description of TASKS](https://github.com/PetoLau/Rcourse/blob/master/Exercises/2_datasets_ozone_leukemia_exercises.md)),
+ - Typical workflow for linear regression task with ozone dataset,
+    - Linear regression on Boston housing dataset ([description of TASKS](https://github.com/PetoLau/Rcourse/blob/master/Exercises/4_housing_tasks.md)),
+ - Typical workflow for logistic regression (classification task) with Titanic dataset ([download dataset from here](https://www.kaggle.com/c/titanic/data)).
 
 ## More info
 
