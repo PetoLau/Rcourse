@@ -48,7 +48,8 @@ Contents:
  - Feature engineering and exploratory analysis with ozone and genes leukemia datasets ([description of TASKS](https://github.com/PetoLau/Rcourse/blob/master/Exercises/2_datasets_ozone_leukemia_exercises.md)),
  - Typical workflow for linear regression task with ozone dataset,
     - Linear regression on Boston housing dataset ([description of TASKS](https://github.com/PetoLau/Rcourse/blob/master/Exercises/4_housing_tasks.md)),
- - Typical workflow for logistic regression (classification task) with Titanic dataset ([download dataset from here](https://www.kaggle.com/c/titanic/data)).
+ - Typical workflow for logistic regression (classification task) with Titanic dataset ([download dataset from here](https://www.kaggle.com/c/titanic/data)),
+ - Dimensionality reduction - PCA step by step explained, Multidimensional scaling, t-SNE with pendigits dataset ([description of dataset](https://archive.ics.uci.edu/ml/datasets/Pen-Based+Recognition+of+Handwritten+Digits)).
 
 ## More info
 
